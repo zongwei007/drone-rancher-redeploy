@@ -1,11 +1,26 @@
 import { Rancher } from "./api.ts";
 
-const PLUGIN_API = "";
-const PLUGIN_TOKEN =
-  "";
-const PLUGIN_PROJECT = "opment";
-const PLUGIN_NAMESPACE = "";
-const PLUGIN_DEPLOYMENT = "";
+const {
+  PLUGIN_API,
+  PLUGIN_TOKEN,
+  PLUGIN_PROJECT,
+  PLUGIN_NAMESPACE,
+  PLUGIN_DEPLOYMENT,
+} = Deno.env.toObject();
+
+const args = [
+  PLUGIN_API,
+  PLUGIN_TOKEN,
+  PLUGIN_PROJECT,
+  PLUGIN_NAMESPACE,
+  PLUGIN_DEPLOYMENT,
+];
+const argNames = ["api", "token", "project", "namespace", "deployment"];
+
+let emptyIdx: number;
+if ((emptyIdx = args.findIndex((ele) => !ele)) !== -1) {
+  throw new Error(`param ${argNames[emptyIdx]} is empty`);
+}
 
 const api = new Rancher(PLUGIN_API, PLUGIN_TOKEN);
 
