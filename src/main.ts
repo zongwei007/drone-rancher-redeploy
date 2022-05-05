@@ -1,4 +1,4 @@
-import { Rancher } from "./api.ts";
+import { Rancher } from './api.ts';
 
 const {
   PLUGIN_API,
@@ -6,6 +6,7 @@ const {
   PLUGIN_PROJECT,
   PLUGIN_NAMESPACE,
   PLUGIN_DEPLOYMENT,
+  PLUGIN_IMAGE,
 } = Deno.env.toObject();
 
 const args = [
@@ -15,7 +16,7 @@ const args = [
   PLUGIN_NAMESPACE,
   PLUGIN_DEPLOYMENT,
 ];
-const argNames = ["api", "token", "project", "namespace", "deployment"];
+const argNames = ['api', 'token', 'project', 'namespace', 'deployment'];
 
 let emptyIdx: number;
 if ((emptyIdx = args.findIndex((ele) => !ele)) !== -1) {
@@ -24,25 +25,24 @@ if ((emptyIdx = args.findIndex((ele) => !ele)) !== -1) {
 
 const api = new Rancher(PLUGIN_API, PLUGIN_TOKEN);
 
-const {
-  data: [project],
-} = await api.projects({ name: PLUGIN_PROJECT });
+const { data: [project] } = await api.projects({ name: PLUGIN_PROJECT });
 
 if (!project) {
   throw new Error(`Project ${PLUGIN_PROJECT} is not found`);
 }
 
-const {
-  data: [workload],
-} = await project.workloads({
+const { data: [workload] } = await project.workloads({
   namespaceId: PLUGIN_NAMESPACE,
   name: PLUGIN_DEPLOYMENT,
 });
 
 if (!workload) {
-  throw new Error(
-    `Workload ${PLUGIN_NAMESPACE}/${PLUGIN_DEPLOYMENT} is not found`
-  );
+  throw new Error(`Workload ${PLUGIN_NAMESPACE}/${PLUGIN_DEPLOYMENT} is not found`);
 }
 
-await workload.action("redeploy");
+if (PLUGIN_IMAGE && PLUGIN_IMAGE !== workload.containerImage) {
+  workload.containerImage = PLUGIN_IMAGE;
+  await workload.update();
+} else {
+  await workload.action('redeploy');
+}

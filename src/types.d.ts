@@ -1,4 +1,4 @@
-declare interface ProjectData {
+declare interface IProject {
   description: string;
   id: string;
   name: string;
@@ -14,11 +14,12 @@ declare type ProjectFilters = {
   uuid?: string;
 };
 
-declare interface WorkloadData {
+declare interface IWorkload {
   id: string;
   name: string;
   namespaceId: string;
   uuid: string;
+  containers: Array<Container>;
 }
 
 declare type WorkloadFilters = {
@@ -27,12 +28,16 @@ declare type WorkloadFilters = {
   uuid?: string;
 };
 
-declare type PaginationData<T> = {
+declare type Container = Record<string, unknown> & {
+  environment: Record<string, string>;
+  image: string;
+};
+
+declare type Pagination<T> = {
   pagination: { limit: number; total: number };
   data: T[];
 };
 
-
-declare type RequestOptions = {
-  param?: Record<string, any>;
-} & Pick<RequestInit, "body" | "headers" | "method">;
+declare type RequestOptions =
+  & Pick<RequestInit, 'body' | 'headers' | 'method'>
+  & { param?: Record<string, string | string[]> };
